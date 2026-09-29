@@ -968,10 +968,10 @@
         </select>
         <div class="error-msg">נא לבחור</div>
       </div>
-      <div class="field" data-required>
+      <div class="field" data-required data-validate="date">
         <label class="lbl" for="{p}_birthDate">תאריך לידה<span class="req">*</span></label>
-        <input type="date" id="{p}_birthDate" name="{p}_birthDate">
-        <div class="error-msg">נא להזין תאריך לידה</div>
+        <input type="text" id="{p}_birthDate" name="{p}_birthDate" class="ltr" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" data-date-mask>
+        <div class="error-msg">נא להזין תאריך לידה תקין (dd/mm/yyyy)</div>
       </div>
     </div>
 
@@ -1109,7 +1109,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
      participants: [ {...} ]  – פרטים אישיים: 1 item when coming alone,
                                2 items (one per partner) when coming as a couple
        each participant = {
-         firstName, idNumber, gender (גבר/אישה), birthDate,
+         firstName, idNumber, gender (גבר/אישה), birthDate (dd/mm/yyyy),
          extraEmail, extraPhone, extraPhoneInternational,
          contactPhone, contactPhoneInternational,
          profession, recentWork, hobbies,
@@ -1308,6 +1308,23 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
   const validIsraeliPhone = v => /^[2-9]\d{7,8}$/.test(localDigits(v));
   const toInternational = v => v.trim() ? '+972' + localDigits(v) : '';
 
+  // Date typed as dd/mm/yyyy: must be a real date between 1900 and today
+  function validDate(v) {
+    const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return false;
+    const [d, mo, y] = [+m[1], +m[2], +m[3]];
+    const date = new Date(y, mo - 1, d);
+    return date.getFullYear() === y && date.getMonth() === mo - 1 && date.getDate() === d
+      && y >= 1900 && date <= new Date();
+  }
+
+  // Adds the slashes while typing: 01011960 → 01/01/1960
+  form.addEventListener('input', e => {
+    if (!e.target.matches('[data-date-mask]')) return;
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    e.target.value = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('/');
+  }, true);
+
   // Israeli ID: up to 9 digits, checked with the ID check digit
   function israeliId(id) {
     if (!/^\d{5,9}$/.test(id)) return false;
@@ -1343,6 +1360,8 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
         return validIsraeliPhone(v);
       case 'id':
         return israeliId(v);
+      case 'date':
+        return validDate(v);
     }
     return true;
   }
@@ -1428,7 +1447,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
       firstName: g('firstName'),
       idNumber: g('idNumber'),
       gender: g('gender'),
-      birthDate: g('birthDate'),                    // YYYY-MM-DD
+      birthDate: g('birthDate'),                    // dd/mm/yyyy
       extraEmail: g('extraEmail'),
       extraPhone: g('extraPhone'),
       extraPhoneInternational: toInternational(g('extraPhone')),
