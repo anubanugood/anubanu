@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>טופס הצטרפות – אנובנו</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Colors taken from the Anubanu logo */
+    --bg: #f4f1ec;
+    --card: #ffffff;
+    --ink: #2b2723;
+    --muted: #6e665d;
+    --line: #e2dcd2;
+    --field: #fbfaf8;
+    --brand: #2a8ab3;        /* logo teal */
+    --brand-dark: #1f6d8e;
+    --brand-soft: #e7f3f8;
+    --accent: #7b6a57;       /* logo brown */
+    --accent-soft: #f3eee7;
+    --danger: #b3261e;
+    --danger-soft: #fdecea;
+    --ok: #3f7d4e;
+    --ok-soft: #eef6ef;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(43, 39, 35, .05), 0 6px 24px rgba(43, 39, 35, .06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Heebo", "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  /* ---------- Page layout: help sidebar (right) + form ---------- */
+  .page {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 32px 20px 150px;
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  main { min-width: 0; max-width: 780px; }
+
+  /* ---------- Help sidebar ---------- */
+  .help {
+    position: sticky;
+    top: 24px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-top: 5px solid var(--brand);
+    padding: 22px 22px 20px;
+  }
+  .help h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .help h2 .ic {
+    display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--brand-soft); color: var(--brand);
+    font-size: 17px;
+  }
+  .help p { margin: 0 0 10px; font-size: 14.5px; color: var(--muted); }
+  /* Static, read-only contact info (nothing clickable) */
+  .help .msg-box {
+    border-inline-start: 3px solid var(--brand);
+    padding: 2px 12px;
+    margin: 14px 0 20px;
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+  .help .msg-box .num {
+    display: block;
+    direction: ltr;
+    text-align: right;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--brand-dark);
+    letter-spacing: .5px;
+  }
+  .help .sub { font-weight: 700; font-size: 14.5px; margin: 0 0 6px; color: var(--ink); }
+  .contacts { list-style: none; margin: 0; padding: 0; }
+  .contacts li {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 8px 2px;
+    border-bottom: 1px dotted var(--line);
+  }
+  .contacts li:last-child { border-bottom: 0; }
+  .contacts b { font-weight: 600; }
+  .contacts span { direction: ltr; color: var(--ink); font-size: 15px; letter-spacing: .3px; }
+  .help-close { display: none; }
+
+  /* Mobile help button + sheet backdrop */
+  .help-fab {
+    display: none;
+    position: fixed;
+    left: 16px;
+    bottom: 96px;
+    z-index: 20;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    padding: 11px 18px;
+    box-shadow: 0 6px 20px rgba(31, 109, 142, .35);
+    cursor: pointer;
+  }
+  .backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, .35);
+    z-index: 30; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .backdrop.show { opacity: 1; pointer-events: auto; }
+
+  /* ---------- Header ---------- */
+  .hero {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .hero-top {
+    text-align: center;
+    padding: 30px 32px 22px;
+    background:
+      radial-gradient(circle at 85% 0%, rgba(42, 138, 179, .08), transparent 55%),
+      radial-gradient(circle at 10% 100%, rgba(123, 106, 87, .08), transparent 50%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-top img { width: 240px; max-width: 70%; height: auto; display: block; margin: 0 auto 12px; }
+  .hero h1 {
+    font-size: clamp(22px, 3.6vw, 30px);
+    margin: 0;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .hero-body { padding: 24px 32px 28px; }
+  .hero-body p { margin: 0 0 14px; font-size: 15.5px; color: #463f38; }
+  .slogans { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+  .slogans span {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 7px 18px;
+    font-weight: 800;
+    font-size: 17px;
+  }
+  .slogans span b { color: var(--brand); }
+  .welcome {
+    background: var(--brand-soft);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .welcome p { margin: 0 0 6px; color: var(--brand-dark); font-size: 15px; }
+  .welcome p:first-child { font-weight: 700; font-size: 16px; }
+  .welcome p:last-child { margin: 0; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-top: 20px;
+    animation: fadeIn .35s ease;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .card-title .num {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .card-sub { color: var(--muted); margin: 0 0 20px; font-size: 14.5px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---------- Fields ---------- */
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+
+  .lbl {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .req { color: var(--danger); margin-inline-start: 2px; }
+  .hint { display: block; color: var(--muted); font-size: 13.5px; margin: -2px 0 8px; }
+
+  input[type=text], input[type=email], input[type=tel], input[type=date],
+  select, textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--field);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  textarea { min-height: 110px; resize: vertical; }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236e665d' stroke-width='1.8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 14px center;
+    padding-left: 38px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--brand);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(42, 138, 179, .15);
+  }
+  input[type=email], input[type=tel], .ltr { direction: ltr; text-align: right; }
+
+  /* Phone with fixed +972 prefix */
+  .phone { display: flex; direction: ltr; }
+  .phone .prefix {
+    display: grid; place-items: center;
+    padding: 0 14px;
+    background: var(--accent-soft);
+    border: 1.5px solid var(--line);
+    border-right: 0;
+    border-radius: 10px 0 0 10px;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .phone input { border-radius: 0 10px 10px 0; text-align: left; }
+
+  .counter { font-size: 12.5px; color: var(--muted); text-align: left; margin-top: 4px; }
+
+  /* Error state */
+  .error-msg {
+    display: none;
+    color: var(--danger);
+    font-size: 13.5px;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .field.invalid .error-msg { display: block; }
+  .field.invalid input, .field.invalid select, .field.invalid textarea,
+  .field.invalid .prefix {
+    border-color: var(--danger);
+  }
+  .field.invalid .choice, .field.invalid .option-big, .field.invalid .check { border-color: #e7b3ae; }
+
+  /* ---------- Choices (radio pills) ---------- */
+  .choices { display: flex; flex-wrap: wrap; gap: 10px; }
+  .choice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: var(--field);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all .15s;
+    user-select: none;
+  }
+  .choice:hover { border-color: #c9c0b2; }
+  .choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice .dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #b9b0a3;
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    transition: all .15s;
+  }
+  .choice input:checked ~ .dot { border-color: var(--brand); }
+  .choice input:checked ~ .dot::after {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand);
+  }
+  .choice:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+  }
+  .choice:has(input:focus-visible) { box-shadow: 0 0 0 4px rgba(42, 138, 179, .2); }
+
+  /* Yes / No gate */
+  .gate {
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    transition: border-color .2s, background .2s;
+  }
+  .gate .lbl { margin: 0; }
+  .gate .hint { margin: 2px 0 0; }
+  .gate .choices { flex-wrap: nowrap; }
+  .gate .choice { padding: 8px 18px; }
+  .gate.yes { border-color: #a9cdb2; background: var(--ok-soft); }
+  .gate.no  { border-color: #e7b3ae; background: #fff8f7; }
+  .gate .choice.yes-opt:has(input:checked) { border-color: var(--ok); background: #fff; color: var(--ok); }
+  .gate .choice.yes-opt input:checked ~ .dot { border-color: var(--ok); }
+  .gate .choice.yes-opt input:checked ~ .dot::after { background: var(--ok); }
+  .gate .choice.no-opt:has(input:checked) { border-color: var(--danger); background: #fff; color: var(--danger); }
+  .gate .choice.no-opt input:checked ~ .dot { border-color: var(--danger); }
+  .gate .choice.no-opt input:checked ~ .dot::after { background: var(--danger); }
+  .gate.field.invalid { border-color: var(--danger); }
+  .gate .error-msg { margin-top: 4px; }
+
+  /* Big option cards (single / couple) */
+  .options-big { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .option-big {
+    position: relative;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    cursor: pointer;
+    background: var(--field);
+    transition: all .15s;
+    text-align: center;
+  }
+  .option-big input { position: absolute; opacity: 0; pointer-events: none; }
+  .option-big .ico { font-size: 34px; line-height: 1; display: block; margin-bottom: 8px; }
+  .option-big strong { display: block; font-size: 17px; }
+  .option-big span.d { font-size: 13.5px; color: var(--muted); }
+  .option-big:hover { border-color: #c9c0b2; }
+  .option-big:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 3px rgba(42, 138, 179, .15);
+  }
+  .option-big:has(input:focus-visible) { box-shadow: 0 0 0 4px rgba(42, 138, 179, .25); }
+
+  /* ---------- Notices ---------- */
+  .notice {
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 15px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .notice .i { font-size: 20px; line-height: 1.3; }
+  .notice.warn { background: var(--danger-soft); color: #7a1d17; margin-top: 6px; }
+  .notice.info { background: var(--brand-soft); color: var(--brand-dark); }
+  .notice p { margin: 0 0 6px; }
+  .notice p:last-child { margin: 0; }
+
+  /* ---------- Person section ---------- */
+  .person-card { border-top: 5px solid var(--accent); }
+  .person-card .card-title .num { background: var(--accent-soft); color: var(--accent); }
+  .subhead {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .5px;
+    margin: 26px 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  /* File upload */
+  .dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 2px dashed #cfc6b8;
+    border-radius: 12px;
+    padding: 28px 16px;
+    text-align: center;
+    background: var(--field);
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--muted);
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--brand); background: var(--brand-soft); }
+  .dropzone input { display: none; }
+  .dropzone .up { font-size: 28px; }
+  .dropzone u { color: var(--brand); font-weight: 600; text-decoration: none; }
+  .file-chosen {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1.5px solid #a9cdb2;
+    background: var(--ok-soft);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14.5px;
+  }
+  .file-chosen.show { display: flex; }
+  .file-chosen .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; }
+  .btn-link {
+    background: none; border: 0; color: var(--danger); font: inherit; font-weight: 600;
+    cursor: pointer; padding: 4px 6px; border-radius: 6px;
+  }
+  .btn-link:hover { background: var(--danger-soft); }
+
+  /* Multi-select dropdown (תחומי עניין) */
+  .multi { position: relative; }
+  .multi-toggle {
+    width: 100%;
+    min-height: 46px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: right;
+    background: var(--field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236e665d' stroke-width='1.8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat left 14px center;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 7px 14px 7px 38px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .multi-toggle:focus-visible, .multi.open .multi-toggle {
+    outline: none;
+    border-color: var(--brand);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(42, 138, 179, .15);
+  }
+  .multi-value { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .multi-panel {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 6px);
+    z-index: 15;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(43, 39, 35, .14);
+    padding: 6px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .multi-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .multi-opt:hover { background: var(--field); }
+  .multi-opt:has(input:checked) { background: var(--brand-soft); color: var(--brand-dark); }
+  .multi-opt input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--brand); flex-shrink: 0; }
+
+  /* Checkbox confirm */
+  .check {
+    display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--field);
+  }
+  .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--brand); flex-shrink: 0; }
+  .check:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); }
+
+  /* ---------- Submit bar ---------- */
+  .submit-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    padding: 14px 20px;
+    z-index: 10;
+  }
+  .submit-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .progress-wrap { flex: 1; min-width: 0; max-width: 520px; }
+  .progress-text { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .progress-text b { color: var(--ink); }
+  .progress-text.err { color: var(--danger); font-weight: 500; }
+  .progress { height: 6px; background: #ece6dc; border-radius: 99px; overflow: hidden; }
+  .progress > div { height: 100%; width: 0; background: var(--brand); border-radius: 99px; transition: width .3s; }
+
+  .btn {
+    font: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 40px;
+    background: var(--brand);
+    color: #fff;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn:active { transform: scale(.98); }
+  .btn[aria-disabled=true] { background: #b8b0a4; cursor: not-allowed; }
+  .btn.loading { pointer-events: none; opacity: .85; }
+  .btn .spin {
+    display: none; width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .5); border-top-color: #fff;
+    animation: spin .7s linear infinite;
+  }
+  .btn.loading .spin { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Success */
+  .success { text-align: center; padding: 48px 32px; }
+  .success img { width: 180px; max-width: 60%; }
+  .success { padding: 40px 32px 48px; }
+  .success img { width: 150px; }
+  .success h2 { margin: 36px 0 12px; font-size: clamp(22px, 4vw, 30px); font-weight: 500; }
+  .success-sub { margin: 0; font-weight: 700; color: var(--accent); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 940px) {
+    .page { grid-template-columns: 1fr; padding-top: 16px; }
+    main { max-width: none; }
+    .help-fab { display: block; }
+    .help {
+      position: fixed;
+      inset-inline: 0;
+      bottom: 0;
+      top: auto;
+      z-index: 40;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 18px 18px 0 0;
+      transform: translateY(105%);
+      transition: transform .25s ease;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+    .help.open { transform: none; }
+    .help-close {
+      display: block;
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 34px; height: 34px;
+      border: 0; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent);
+      font-size: 18px; cursor: pointer;
+    }
+  }
+  @media (max-width: 600px) {
+    .hero-top, .hero-body, .card { padding-left: 18px; padding-right: 18px; }
+    .grid-2, .options-big { grid-template-columns: 1fr; }
+    .gate { flex-direction: column; align-items: stretch; }
+    .gate .choice { flex: 1; justify-content: center; }
+    .btn { padding: 12px 24px; }
+    .progress-text { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ================= HELP SIDEBAR (right side) ================= -->
+  <aside class="help" id="help" aria-label="עזרה ותמיכה">
+    <button type="button" class="help-close" id="helpClose" aria-label="סגירה">✕</button>
+    <h2><span class="ic">?</span>עזרה ותמיכה</h2>
+    <p>מתקשים למלא את השאלון? נשמח לעזור.</p>
+
+    <div class="msg-box">
+      אפשר לשלוח הודעה למספר
+      <span class="num">053-4353635</span>
+    </div>
+
+    <p class="sub">בשאלות על התוכנית אפשר לפנות ל:</p>
+    <ul class="contacts">
+      <li><b>יצחק</b><span>053-589-1713</span></li>
+      <li><b>גילה</b><span>052-370-0059</span></li>
+      <li><b>נחי</b><span>052-476-7060</span></li>
+      <li><b>אבי</b><span>052-434-2124</span></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- ================= HEADER ================= -->
+    <header class="hero" id="hero">
+      <div class="hero-top">
+        <img src="img/logo.png" alt="אנובנו – שנת שירות בגיל השלישי">
+        <h1>טופס הצטרפות לתוכנית ההתנדבות אנובנו</h1>
+      </div>
+      <div class="hero-body">
+        <p>תנועת אנובנו - שנת שירות לבני הגיל השלישי, פועלת בשיתוף ארגון הג'וינט, תנועת אמונה, קק"ל, בנק הפועלים וקרן הביתה. התנועה זכתה באות הנשיא להתנדבות לשנת תשפ"ו. הזכייה מעניקה הכרה ממלכתית למודל הייחודי, הרואה בבני הגיל השלישי כוח פעיל, יוזם ומשמעותי בחברה הישראלית.</p>
+        <p>ההרשמה למחזור השלישי פתוחה לזוגות וליחידים בגילאי הפרישה, דתיים וחילונים, המעוניינים לעבור לעיר או לרשות מקומית בצפון או בדרום, להשתלב בגרעין קהילתי ולהתחייב לשנת שירות מלאה. בחירת המקום נעשית בהתאם לגרעינים הנמצאים בתהליך הקמה ולמקומות הפנויים.</p>
+
+        <div class="slogans">
+          <span>מה לעשות? <b>לעשות!</b></span>
+          <span>מתי? <b>עכשיו!</b></span>
+        </div>
+
+        <div class="welcome">
+          <p>אנחנו שמחים שאתם מתעניינים בתוכנית אנובנו.</p>
+          <p>בטופס הקצר שלפניכם נבקש כמה פרטים שיעזרו לנו להכיר אתכם ולהתאים לכם את הפעילות המתאימה ביותר.</p>
+          <p>אין צורך למהר – אפשר למלא את הטופס בנחת.</p>
+        </div>
+      </div>
+    </header>
+
+    <form id="joinForm" novalidate>
+
+      <!-- ================= STEP 1: CONTACT ================= -->
+      <section class="card">
+        <h2 class="card-title"><span class="num">1</span>פרטי התקשרות</h2>
+        <p class="card-sub">נשתמש בפרטים האלה כדי לחזור אליכם.</p>
+
+        <div class="field" data-required>
+          <label class="lbl" for="fullName">שם(ות) פרטי(ים) ושם משפחה<span class="req">*</span></label>
+          <input type="text" id="fullName" name="fullName" autocomplete="name">
+          <div class="error-msg">נא למלא שם מלא</div>
+        </div>
+
+        <div class="field" data-required data-validate="email">
+          <label class="lbl" for="email">כתובת אימייל<span class="req">*</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="name@example.com">
+          <div class="error-msg">נא להזין כתובת אימייל תקינה</div>
+        </div>
+
+        <div class="field" data-required data-validate="phone">
+          <label class="lbl" for="phone">טלפון<span class="req">*</span></label>
+          <div class="phone">
+            <span class="prefix">+972</span>
+            <input type="tel" id="phone" name="phone" autocomplete="tel-national" inputmode="tel" placeholder="050-000-0000">
+          </div>
+          <div class="error-msg">נא להזין מספר טלפון ישראלי תקין</div>
+        </div>
+      </section>
+
+      <!-- ================= STEP 2: GATES ================= -->
+      <section class="card">
+        <h2 class="card-title"><span class="num">2</span>כמה דברים חשובים לפני שמתחילים</h2>
+        <p class="card-sub">כדי להצטרף לתוכנית, חשוב שתהיו מוכנים:</p>
+
+        <div class="gate field" data-required data-gate>
+          <div>
+            <span class="lbl">לעבור דירה למקום ההתנדבות (חובה)<span class="req">*</span></span>
+            <span class="hint">תשובה חיובית לשאלה זו היא תנאי להמשך התהליך</span>
+            <div class="error-msg">נא לבחור תשובה</div>
+          </div>
+          <div class="choices">
+            <label class="choice yes-opt"><input type="radio" name="gateRelocate" value="כן"><span class="dot"></span>כן</label>
+            <label class="choice no-opt"><input type="radio" name="gateRelocate" value="לא"><span class="dot"></span>לא</label>
+          </div>
+        </div>
+
+        <div class="gate field" data-required data-gate>
+          <div>
+            <span class="lbl">להתנדב לפחות 20 שעות בשבוע (חובה)<span class="req">*</span></span>
+            <span class="hint">תשובה חיובית לשאלה זו היא תנאי להמשך התהליך</span>
+            <div class="error-msg">נא לבחור תשובה</div>
+          </div>
+          <div class="choices">
+            <label class="choice yes-opt"><input type="radio" name="gateHours" value="כן"><span class="dot"></span>כן</label>
+            <label class="choice no-opt"><input type="radio" name="gateHours" value="לא"><span class="dot"></span>לא</label>
+          </div>
+        </div>
+
+        <div class="gate field" data-required data-gate>
+          <div>
+            <span class="lbl">להשתתף בתוכנית במשך שנה<span class="req">*</span></span>
+            <span class="hint">תשובה חיובית לשאלה זו היא תנאי להמשך התהליך</span>
+            <div class="error-msg">נא לבחור תשובה</div>
+          </div>
+          <div class="choices">
+            <label class="choice yes-opt"><input type="radio" name="gateYear" value="כן"><span class="dot"></span>כן</label>
+            <label class="choice no-opt"><input type="radio" name="gateYear" value="לא"><span class="dot"></span>לא</label>
+          </div>
+        </div>
+
+        <div class="notice warn" id="gateWarning" hidden>
+          <span class="i">⚠️</span>
+          <div>
+            <p><strong>תודה על הכנות!</strong></p>
+            <p>ההשתתפות בתוכנית מחייבת מעבר דירה, התנדבות של 20 שעות שבועיות לפחות והתחייבות לשנה מלאה. אפשר לשלוח את הטופס כבר עכשיו.</p>
+            <p>יש שאלות? אנשי הקשר בחלון "עזרה ותמיכה" ישמחו לעזור.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REST OF FORM (shown only when all gates = כן) ================= -->
+      <div id="restOfForm" hidden>
+
+        <!-- STEP 3: GENERAL -->
+        <section class="card">
+          <h2 class="card-title"><span class="num">3</span>פרטים כלליים</h2>
+          <p class="card-sub">מעולה! עכשיו נשמח להכיר אתכם קצת יותר.</p>
+
+          <div class="field">
+            <label class="lbl" for="availability">זמינות להצטרפות</label>
+            <span class="hint">האם אתם יכולים להצטרף לתוכנית בתקופה הקרובה? אם בחרתם "אחר" – אפשר לפרט בהערות</span>
+            <select id="availability" name="availability">
+              <option value="" selected hidden></option>
+              <option>כן</option>
+              <option>לא</option>
+              <option>אחר</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <span class="lbl">מצב משפחתי</span>
+            <span class="hint">בחרו את האפשרות המתאימה לכם:</span>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="maritalStatus" value="נשוי/אה"><span class="dot"></span>נשוי/אה</label>
+              <label class="choice"><input type="radio" name="maritalStatus" value="רווק/ה"><span class="dot"></span>רווק/ה</label>
+              <label class="choice"><input type="radio" name="maritalStatus" value="גרוש/ה"><span class="dot"></span>גרוש/ה</label>
+              <label class="choice"><input type="radio" name="maritalStatus" value="אלמן/ה"><span class="dot"></span>אלמן/ה</label>
+              <label class="choice"><input type="radio" name="maritalStatus" value="אחר"><span class="dot"></span>אחר</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl" for="address">כתובת מגורים</label>
+            <span class="hint">כתבו כאן את הכתובת שבה אתם גרים כיום</span>
+            <input type="text" id="address" name="address" autocomplete="street-address" placeholder="רחוב, מספר, עיר">
+          </div>
+
+          <div class="field" data-required>
+            <span class="lbl">איך הייתם מגדירים את עצמכם מבחינה דתית?<span class="req">*</span></span>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="religion" value="דתי-לאומי"><span class="dot"></span>דתי-לאומי</label>
+              <label class="choice"><input type="radio" name="religion" value="חילוני"><span class="dot"></span>חילוני</label>
+              <label class="choice"><input type="radio" name="religion" value="מסורתי"><span class="dot"></span>מסורתי</label>
+              <label class="choice"><input type="radio" name="religion" value="חרדי"><span class="dot"></span>חרדי</label>
+              <label class="choice"><input type="radio" name="religion" value="אחר"><span class="dot"></span>אחר</label>
+            </div>
+            <div class="error-msg">נא לבחור אפשרות</div>
+          </div>
+
+          <div class="field">
+            <label class="lbl" for="communityArea">התנדבות בקהילה</label>
+            <span class="hint">היכן אתם מעוניינים להתנדב ולפעול למען הקהילה?</span>
+            <select id="communityArea" name="communityArea">
+              <option value="" selected hidden></option>
+              <option>עירונית בצפון</option>
+              <option>עירונית בדרום</option>
+              <option>לא משנה לנו - איפה שצריך אותנו שם נהיה</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- STEP 4: SINGLE / COUPLE -->
+        <section class="card">
+          <h2 class="card-title"><span class="num">4</span>מגיעים לבד או כזוג? (חובה)<span class="req">*</span></h2>
+          <p class="card-sub">לפי הבחירה שלכם נציג את חלק הפרטים האישיים – פעם אחת לכל משתתף.</p>
+
+          <div class="field" data-required>
+            <div class="options-big">
+              <label class="option-big">
+                <input type="radio" name="arrivalType" value="couple">
+                <span class="ico">👥</span>
+                <strong>מגיעים כזוג</strong>
+                <span class="d">שני בני הזוג משתתפים בתוכנית</span>
+              </label>
+              <label class="option-big">
+                <input type="radio" name="arrivalType" value="single">
+                <span class="ico">👤</span>
+                <strong>מגיע/ה לבד</strong>
+                <span class="d">משתתף/ת יחיד/ה בתוכנית</span>
+              </label>
+            </div>
+            <div class="error-msg">נא לבחור אפשרות</div>
+          </div>
+
+          <div class="notice info" id="arrivalInfo" hidden style="margin-top:18px">
+            <div id="arrivalInfoText"></div>
+          </div>
+        </section>
+
+        <!-- STEP 5: PERSONAL DETAILS (generated from template) -->
+        <div id="persons"></div>
+
+        <!-- FINISH -->
+        <section class="card" id="finishCard" hidden>
+          <h2 class="card-title"><span class="num" id="finishNum">6</span>סיום</h2>
+
+          <div class="field">
+            <label class="lbl" for="notes">הערות</label>
+            <span class="hint">אם באחת השאלות בחרתם באפשרות "אחר", נשמח שתפרטו בקצרה למה התכוונתם.</span>
+            <textarea id="notes" name="notes" maxlength="2000"></textarea>
+            <div class="counter" data-counter-for="notes">0/2000</div>
+          </div>
+
+          <div class="field" data-required data-validate="yes">
+            <label class="lbl" for="confirmDetails"><span id="confirmLabel">האם השלמתם מילוי הפרטים האישיים עבור 2 בני הזוג?  אם  לא  בבקשה חזרו  לאחור והשלימו את הפרטים האישיים</span><span class="req">*</span></label>
+            <span class="hint">שים/י לב! בדקו שהכול נכון לפני הלחיצה על "שלח".</span>
+            <select id="confirmDetails" name="confirmDetails">
+              <option value="" selected hidden></option>
+              <option>כן</option>
+              <option>לא</option>
+            </select>
+            <div class="error-msg" id="confirmError">נא לבחור תשובה</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= SUBMIT BAR ================= -->
+      <div class="submit-bar">
+        <div class="submit-inner">
+          <div class="progress-wrap">
+            <div class="progress-text" id="progressText">נא לענות על שאלות החובה</div>
+            <div class="progress"><div id="progressBar"></div></div>
+          </div>
+          <button type="submit" class="btn" id="submitBtn" aria-disabled="true"><span class="spin"></span>שלח</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Success -->
+    <section class="card success" id="successCard" hidden>
+      <img src="img/logo.png" alt="אנובנו">
+      <h2>תודה על רצונכם להשתתף בתוכנית אנובנו</h2>
+      <p class="success-sub">אנחנו שמחים שאתם איתנו!</p>
+    </section>
+  </main>
+</div>
+
+<button type="button" class="help-fab" id="helpFab">💬 עזרה</button>
+<div class="backdrop" id="backdrop"></div>
+
+<!-- ================= PERSON TEMPLATE ({p} = p1 / p2) ================= -->
+<template id="personTpl">
+  <section class="card person-card" data-person>
+    <h2 class="card-title"><span class="num" data-num></span><span data-title></span></h2>
+    <p class="card-sub" data-sub></p>
+
+    <div class="subhead">פרטים מזהים</div>
+    <div class="field" data-required>
+      <label class="lbl" for="{p}_firstName">שם פרטי<span class="req">*</span></label>
+      <input type="text" id="{p}_firstName" name="{p}_firstName">
+      <div class="error-msg">נא למלא שם פרטי</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field" data-required>
+        <label class="lbl" for="{p}_gender">מין<span class="req">*</span></label>
+        <select id="{p}_gender" name="{p}_gender">
+          <option value="" selected hidden></option>
+          <option>גבר</option>
+          <option>אישה</option>
+        </select>
+        <div class="error-msg">נא לבחור</div>
+      </div>
+      <div class="field" data-required>
+        <label class="lbl" for="{p}_birthDate">תאריך לידה<span class="req">*</span></label>
+        <input type="date" id="{p}_birthDate" name="{p}_birthDate">
+        <div class="error-msg">נא להזין תאריך לידה</div>
+      </div>
+    </div>
+
+    <div class="subhead">פרטי קשר נוספים</div>
+    <div class="field" data-validate="email-optional">
+      <label class="lbl" for="{p}_extraEmail">כתובת דוא"ל נוספת (אם קיימת)</label>
+      <input type="email" id="{p}_extraEmail" name="{p}_extraEmail">
+      <div class="error-msg">כתובת האימייל אינה תקינה</div>
+    </div>
+
+    <div class="field" data-validate="phone-optional">
+      <label class="lbl" for="{p}_extraPhone">מספר טלפון נוסף (אם קיים)</label>
+      <div class="phone">
+        <span class="prefix">+972</span>
+        <input type="tel" id="{p}_extraPhone" name="{p}_extraPhone" inputmode="tel">
+      </div>
+      <div class="error-msg">מספר הטלפון אינו תקין</div>
+    </div>
+
+    <div class="field" data-validate="phone-optional">
+      <label class="lbl" for="{p}_contactPhone">מספר טלפון נוסף ליצירת קשר (אם קיים)</label>
+      <div class="phone">
+        <span class="prefix">+972</span>
+        <input type="tel" id="{p}_contactPhone" name="{p}_contactPhone" inputmode="tel">
+      </div>
+      <div class="error-msg">מספר הטלפון אינו תקין</div>
+    </div>
+
+    <div class="subhead">רקע וניסיון</div>
+    <div class="field">
+      <label class="lbl" for="{p}_profession">המקצוע או התחום שבו עסקת</label>
+      <input type="text" id="{p}_profession" name="{p}_profession">
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="{p}_recentWork">ספר/י לנו בקצרה על העבודה או העיסוק שלך בשנים האחרונות</label>
+      <textarea id="{p}_recentWork" name="{p}_recentWork" maxlength="2000"></textarea>
+      <div class="counter" data-counter-for="{p}_recentWork">0/2000</div>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="{p}_hobbies">תחביבים שיכולים להיות קשורים להתנדבות</label>
+      <textarea id="{p}_hobbies" name="{p}_hobbies" maxlength="2000"></textarea>
+      <div class="counter" data-counter-for="{p}_hobbies">0/2000</div>
+    </div>
+
+    <div class="field">
+      <span class="lbl" id="{p}_interestsLbl">תחומי עניין (אפשר לבחור יותר מאפשרות אחת)</span>
+      <div class="multi" data-multi>
+        <button type="button" class="multi-toggle" aria-haspopup="true" aria-expanded="false" aria-labelledby="{p}_interestsLbl">
+          <span class="multi-value"></span>
+        </button>
+        <div class="multi-panel" hidden>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום לימודי פרטני">תחום לימודי פרטני</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום לימודי קבוצתי">תחום לימודי קבוצתי</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום רגשי (אישי / קבוצתי / זוגי)- אם יש לכם הכשרה טיפולית נשמח שתפרטו בהערות">תחום רגשי (אישי / קבוצתי / זוגי)- אם יש לכם הכשרה טיפולית נשמח שתפרטו בהערות</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="עבודה עם ילדים">עבודה עם ילדים</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="עבודה עם נוער">עבודה עם נוער</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="עבודה עם מבוגרים">עבודה עם מבוגרים</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="עבודה עם קשישים">עבודה עם קשישים</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום טכני( הנדימן)/ הנדסית">תחום טכני( הנדימן)/ הנדסית</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום כלכלי / פיננסית">תחום כלכלי / פיננסית</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחום אומנויות">תחום אומנויות</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="תחומי רפואה">תחומי רפואה</label>
+          <label class="multi-opt"><input type="checkbox" name="{p}_interests" value="אחר">אחר</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="{p}_otherInfo">כל דבר אחר שיכול לעזור לנו להכיר אותך טוב יותר</label>
+      <input type="text" id="{p}_otherInfo" name="{p}_otherInfo">
+    </div>
+
+    <div class="field">
+      <span class="lbl">אנא צרף/י קורות חיים (אם אין לך, אפשר בהמשך)</span>
+      <label class="dropzone">
+        <input type="file" name="{p}_cv" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+        <span class="up">⬆️</span>
+        <span><u>בחירת קובץ</u> או גרירה לכאן</span>
+        <small>PDF, Word או תמונה – עד 3MB</small>
+      </label>
+      <div class="file-chosen">
+        <span class="name"></span>
+        <button type="button" class="btn-link" data-remove-file>הסרה</button>
+      </div>
+      <div class="error-msg" data-file-error></div>
+    </div>
+  </section>
+</template>
+
+<script>
+/* =====================================================================
+   ⚙️  MAKE.COM WEBHOOK – paste your webhook URL here
+   (Make → Scenario → Webhooks → Custom webhook → Copy address)
+   ===================================================================== */
+const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17';
+
+/* =====================================================================
+   Payload sent to Make (JSON). Every key is ALWAYS present so Make's
+   data structure stays stable – empty answers are sent as "".
+
+   {
+     formName, submittedAt,
+     contact: {
+       fullName            – שם(ות) פרטי(ים) ושם משפחה
+       email               – כתובת אימייל
+       phone               – טלפון (כפי שהוקלד, למשל 050-1234567)
+       phoneInternational  – טלפון בפורמט בינלאומי (+972501234567)
+     },
+     requirements: {
+       relocate            – לעבור דירה למקום ההתנדבות (כן/לא)
+       volunteer20Hours    – להתנדב לפחות 20 שעות בשבוע (כן/לא)
+       fullYear            – להשתתף בתוכנית במשך שנה (כן/לא)
+     },
+     general: {
+       availability        – זמינות להצטרפות
+       maritalStatus       – מצב משפחתי
+       address             – כתובת מגורים
+       religiousIdentity   – הגדרה דתית
+       communityArea       – התנדבות בקהילה
+     },
+     arrivalType           – "single" / "couple" ("" when not all 3 requirements are "כן")
+     arrivalTypeLabel      – "מגיע/ה לבד" / "מגיעים כזוג" / ""
+     participantsCount     – 1 / 2 / 0
+     (when not all 3 requirements are "כן", general + finish are sent as ""
+      and participants as [])
+     participants: [ {...} ]  – פרטים אישיים: 1 item when coming alone,
+                               2 items (one per partner) when coming as a couple
+       each participant = {
+         firstName, gender (גבר/אישה), birthDate,
+         extraEmail, extraPhone, extraPhoneInternational,
+         contactPhone, contactPhoneInternational,
+         profession, recentWork, hobbies,
+         interests      – תחומי עניין, array of strings
+         otherInfo,
+         cv: { fileName, mimeType, size, base64 }
+             (in Make: toBinary(cv.base64; "base64") → upload to monday)
+       }
+     finish: {
+       notes               – הערות
+       confirmedDetails    – האם השלמתם מילוי הפרטים האישיים (תמיד "כן" – אי אפשר לשלוח עם "לא")
+     }
+   }
+   ===================================================================== */
+
+(function () {
+  const form = document.getElementById('joinForm');
+  const rest = document.getElementById('restOfForm');
+  const gateWarning = document.getElementById('gateWarning');
+  const persons = document.getElementById('persons');
+  const finishCard = document.getElementById('finishCard');
+  const submitBtn = document.getElementById('submitBtn');
+  const progressText = document.getElementById('progressText');
+  const tpl = document.getElementById('personTpl');
+
+  const GATES = ['gateRelocate', 'gateHours', 'gateYear'];
+  const MAX_FILE_MB = 3;
+
+  /* ---------- Help panel (mobile sheet) ---------- */
+  const help = document.getElementById('help');
+  const backdrop = document.getElementById('backdrop');
+  const toggleHelp = open => { help.classList.toggle('open', open); backdrop.classList.toggle('show', open); };
+  document.getElementById('helpFab').addEventListener('click', () => toggleHelp(true));
+  document.getElementById('helpClose').addEventListener('click', () => toggleHelp(false));
+  backdrop.addEventListener('click', () => toggleHelp(false));
+
+  /* ---------- Helpers ---------- */
+  function bindCounters(root) {
+    root.querySelectorAll('[data-counter-for]').forEach(c => {
+      const ta = document.getElementById(c.dataset.counterFor);
+      const upd = () => c.textContent = ta.value.length + '/' + ta.maxLength;
+      ta.addEventListener('input', upd);
+      upd();
+    });
+  }
+
+  function bindMulti(root) {
+    root.querySelectorAll('[data-multi]').forEach(m => {
+      const toggle = m.querySelector('.multi-toggle');
+      const panel = m.querySelector('.multi-panel');
+      const value = m.querySelector('.multi-value');
+      const setOpen = open => {
+        panel.hidden = !open;
+        m.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      };
+      const render = () => {
+        value.innerHTML = '';
+        m.querySelectorAll('input:checked').forEach(c => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = c.value;
+          value.appendChild(chip);
+        });
+      };
+      toggle.addEventListener('click', () => setOpen(panel.hidden));
+      panel.addEventListener('change', render);
+      document.addEventListener('click', e => { if (!m.contains(e.target)) setOpen(false); });
+      m.addEventListener('keydown', e => { if (e.key === 'Escape') { setOpen(false); toggle.focus(); } });
+      render();
+    });
+  }
+
+  function bindFiles(root) {
+    root.querySelectorAll('.dropzone').forEach(dz => {
+      const field = dz.closest('.field');
+      const input = dz.querySelector('input[type=file]');
+      const chosen = field.querySelector('.file-chosen');
+      const err = field.querySelector('[data-file-error]');
+      const show = () => {
+        let f = input.files[0];
+        field.classList.remove('invalid');
+        if (f && f.size > MAX_FILE_MB * 1024 * 1024) {
+          err.textContent = `הקובץ גדול מדי (מקסימום ${MAX_FILE_MB}MB)`;
+          field.classList.add('invalid');
+          input.value = '';
+          f = null;
+        }
+        chosen.classList.toggle('show', !!f);
+        dz.hidden = !!f;
+        if (f) chosen.querySelector('.name').textContent = f.name;
+      };
+      input.addEventListener('change', show);
+      ['dragenter', 'dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('drag'); }));
+      ['dragleave', 'drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('drag'); }));
+      dz.addEventListener('drop', ev => { input.files = ev.dataTransfer.files; show(); });
+      chosen.querySelector('[data-remove-file]').addEventListener('click', () => { input.value = ''; show(); });
+    });
+  }
+
+  /* ---------- Person sections (built once, toggled) ---------- */
+  function buildPerson(prefix) {
+    const holder = document.createElement('div');
+    holder.innerHTML = tpl.innerHTML.replaceAll('{p}', prefix);
+    const section = holder.firstElementChild;
+    section.hidden = true;
+    persons.appendChild(section);
+    bindCounters(section);
+    bindFiles(section);
+    bindMulti(section);
+    return section;
+  }
+  const person1 = buildPerson('p1');
+  const person2 = buildPerson('p2');
+
+  function setPerson(section, num, title, sub) {
+    section.querySelector('[data-num]').textContent = num;
+    section.querySelector('[data-title]').textContent = title;
+    section.querySelector('[data-sub]').textContent = sub;
+  }
+
+  /* ---------- Conditional logic ---------- */
+  const radioVal = name => {
+    const el = form.querySelector(`[name="${name}"]:checked`);
+    return el ? el.value : '';
+  };
+
+  function updateGates() {
+    const answers = GATES.map(radioVal);
+    form.querySelectorAll('[data-gate]').forEach((g, i) => {
+      g.classList.toggle('yes', answers[i] === 'כן');
+      g.classList.toggle('no', answers[i] === 'לא');
+    });
+    const allYes = answers.every(a => a === 'כן');
+    gateWarning.hidden = !answers.includes('לא');
+    const wasHidden = rest.hidden;
+    rest.hidden = !allYes;
+    if (allYes && wasHidden) {
+      setTimeout(() => rest.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+  }
+
+  function updateArrival() {
+    const a = radioVal('arrivalType');
+    const info = document.getElementById('arrivalInfo');
+    const infoText = document.getElementById('arrivalInfoText');
+    finishCard.hidden = !a;
+    info.hidden = !a;
+    person1.hidden = !a;
+    person2.hidden = a !== 'couple';
+
+    if (a === 'single') {
+      setPerson(person1, 5, 'פרטים אישיים', 'נשמח להכיר אותך – הכישורים, הניסיון ותחומי העניין שלך יעזרו לנו להתאים לך את תפקיד ההתנדבות.');
+      document.getElementById('finishNum').textContent = 6;
+      document.getElementById('confirmLabel').textContent = 'האם השלמת מילוי הפרטים האישיים?  אם  לא  בבקשה חזור/י  לאחור והשלמ/י את הפרטים האישיים';
+      infoText.innerHTML = '<p><strong>מגיע/ה לבד</strong> – מילאת בהצלחה את החלק הראשון של השאלון, שבו שיתפת אותנו בפרטים כלליים.</p><p>בחלק הבא נבקש ממך למלא פרטים אישיים נוספים, שיסייעו לנו להכיר את הכישורים, הניסיון ותחומי העניין שלך, כדי שנוכל להתאים לך את תפקיד ההתנדבות בשנת השירות.</p>';
+    } else if (a === 'couple') {
+      setPerson(person1, 5, 'פרטים אישיים – בן/בת זוג ראשון/ה', 'החלק הזה מיועד לאחד מבני הזוג.');
+      setPerson(person2, 6, 'פרטים אישיים – בן/בת זוג שני/ה', 'החלק הזה מיועד לבן/בת הזוג השני/ה.');
+      document.getElementById('finishNum').textContent = 7;
+      document.getElementById('confirmLabel').textContent = 'האם השלמתם מילוי הפרטים האישיים עבור 2 בני הזוג?  אם  לא  בבקשה חזרו  לאחור והשלימו את הפרטים האישיים';
+      infoText.innerHTML = '<p><strong>מגיעים כזוג</strong> – מילאתם בהצלחה את החלק הראשון של השאלון, שבו שיתפתם אותנו בפרטים כלליים.</p><p>בהמשך יופיעו שני חלקים של פרטים אישיים – אחד לכל אחד מבני הזוג.</p>';
+    }
+  }
+
+  /* ---------- Validation ---------- */
+  const isVisible = el => !el.closest('[hidden]');
+
+  // Israeli number without country code: strip everything but digits, a leading 972 and a leading 0
+  const localDigits = v => v.replace(/\D/g, '').replace(/^972/, '').replace(/^0/, '');
+  const validIsraeliPhone = v => /^[2-9]\d{7,8}$/.test(localDigits(v));
+  const toInternational = v => v.trim() ? '+972' + localDigits(v) : '';
+
+  function checkField(field) {
+    const radios = field.querySelectorAll('input[type=radio]');
+    const checkbox = field.querySelector('input[type=checkbox]');
+    const input = field.querySelector('input[type=text], input[type=email], input[type=tel], input[type=date], select, textarea');
+    const rule = field.dataset.validate || '';
+
+    if (radios.length) return [...radios].some(r => r.checked);
+    if (checkbox) return checkbox.checked;
+    if (!input) return true;
+
+    const v = input.value.trim();
+    if (rule === 'yes') {
+      field.querySelector('.error-msg').textContent = v === 'לא'
+        ? 'לא ניתן לשלוח את הטופס לפני השלמת הפרטים האישיים – נא לחזור לאחור ולהשלים אותם'
+        : 'נא לבחור תשובה';
+      return v === 'כן';
+    }
+    if (field.hasAttribute('data-required') && !v) return false;
+    if (!v) return true;
+
+    switch (rule) {
+      case 'email':
+      case 'email-optional':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      case 'phone':
+      case 'phone-optional':
+        return validIsraeliPhone(v);
+    }
+    return true;
+  }
+
+  const activeFields = () => [...form.querySelectorAll('.field')].filter(f =>
+    isVisible(f) && (f.hasAttribute('data-required') || f.dataset.validate));
+
+  function formState() {
+    const gatesOk = GATES.every(g => radioVal(g) === 'כן');      // all "כן" → full form is required
+    const gatesAnswered = GATES.every(g => radioVal(g) !== '');
+    const fields = activeFields();
+    const required = fields.filter(f => f.hasAttribute('data-required'));
+    const done = required.filter(checkField).length;
+    const allOk = gatesAnswered && fields.every(checkField) && (!gatesOk || !!radioVal('arrivalType'));
+    return { allOk, done, total: required.length, gatesOk };
+  }
+
+  function refresh() {
+    const { allOk, done, total, gatesOk } = formState();
+    const pct = total ? Math.round(done / total * 100) : 0;
+    document.getElementById('progressBar').style.width = (allOk ? 100 : Math.min(pct, 99)) + '%';
+    progressText.classList.remove('err');
+    if (allOk) {
+      progressText.innerHTML = '<b>הכול מוכן!</b> אפשר לשלוח את הטופס';
+    } else {
+      const left = total - done;
+      progressText.innerHTML = left > 0
+        ? `נותרו <b>${left}</b> שדות חובה למילוי`
+        : 'נא לבדוק שדות שסומנו כשגויים';
+    }
+    submitBtn.setAttribute('aria-disabled', String(!allOk));
+  }
+
+  function showErrors() {
+    let first = null;
+    activeFields().forEach(f => {
+      const ok = checkField(f);
+      f.classList.toggle('invalid', !ok);
+      if (!ok && !first) first = f;
+    });
+    return first;
+  }
+
+  /* ---------- Build the Make.com payload ---------- */
+  const val = name => {
+    const el = form.elements[name];
+    if (!el) return '';
+    if (el.type === 'checkbox') return el.checked ? el.value : '';
+    return (el.value || '').trim();   // works for inputs, selects, textareas and radio groups
+  };
+
+  const readFile = file => new Promise((resolve, reject) => {
+    if (!file) return resolve({ fileName: '', mimeType: '', size: 0, base64: '' });
+    const r = new FileReader();
+    r.onload = () => resolve({
+      fileName: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      size: file.size,
+      base64: String(r.result).split(',')[1] || ''
+    });
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+
+  async function participant(p, include) {
+    const g = n => include ? val(`${p}_${n}`) : '';
+    const interests = include
+      ? [...form.querySelectorAll(`[name="${p}_interests"]:checked`)].map(c => c.value)
+      : [];
+    const fileInput = form.elements[`${p}_cv`];
+    return {
+      firstName: g('firstName'),
+      gender: g('gender'),
+      birthDate: g('birthDate'),                    // YYYY-MM-DD
+      extraEmail: g('extraEmail'),
+      extraPhone: g('extraPhone'),
+      extraPhoneInternational: toInternational(g('extraPhone')),
+      contactPhone: g('contactPhone'),
+      contactPhoneInternational: toInternational(g('contactPhone')),
+      profession: g('profession'),
+      recentWork: g('recentWork'),
+      hobbies: g('hobbies'),
+      interests: interests,                         // array of strings
+      otherInfo: g('otherInfo'),
+      cv: await readFile(include ? fileInput.files[0] : null)
+    };
+  }
+
+  async function buildPayload() {
+    const full = GATES.every(g => radioVal(g) === 'כן');   // rest of the form was shown and filled
+    const arrival = full ? val('arrivalType') : '';
+    const v = name => full ? val(name) : '';
+    return {
+      formName: 'טופס הצטרפות לתוכנית ההתנדבות אנובנו',
+      submittedAt: new Date().toISOString(),
+      contact: {
+        fullName: val('fullName'),
+        email: val('email'),
+        phone: val('phone'),
+        phoneInternational: toInternational(val('phone'))
+      },
+      requirements: {
+        relocate: val('gateRelocate'),
+        volunteer20Hours: val('gateHours'),
+        fullYear: val('gateYear')
+      },
+      general: {
+        availability: v('availability'),
+        maritalStatus: v('maritalStatus'),
+        address: v('address'),
+        religiousIdentity: v('religion'),
+        communityArea: v('communityArea')
+      },
+      arrivalType: arrival,
+      arrivalTypeLabel: arrival === 'couple' ? 'מגיעים כזוג' : arrival === 'single' ? 'מגיע/ה לבד' : '',
+      participantsCount: arrival === 'couple' ? 2 : arrival === 'single' ? 1 : 0,
+      participants: arrival === 'couple'
+        ? [await participant('p1', true), await participant('p2', true)]
+        : arrival === 'single' ? [await participant('p1', true)] : [],
+      finish: {
+        notes: v('notes'),
+        confirmedDetails: v('confirmDetails')
+      }
+    };
+  }
+
+  /* ---------- Events ---------- */
+  form.addEventListener('input', e => {
+    const f = e.target.closest('.field');
+    if (f && f.classList.contains('invalid') && checkField(f)) f.classList.remove('invalid');
+    refresh();
+  });
+
+  form.addEventListener('change', e => {
+    if (GATES.includes(e.target.name)) updateGates();
+    if (e.target.name === 'arrivalType') updateArrival();
+    const f = e.target.closest('.field');
+    if (f && f.classList.contains('invalid') && checkField(f)) f.classList.remove('invalid');
+    // Answering "לא" to the completion question shows the "go back" message right away
+    if (e.target.name === 'confirmDetails' && e.target.value === 'לא') {
+      checkField(f);
+      f.classList.add('invalid');
+    }
+    refresh();
+  });
+
+  form.addEventListener('focusout', e => {
+    const f = e.target.closest('.field');
+    if (!f || !e.target.value || !(f.hasAttribute('data-required') || f.dataset.validate)) return;
+    if (e.target.matches('input[type=text], input[type=email], input[type=tel]')) {
+      f.classList.toggle('invalid', !checkField(f));
+    }
+  });
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (submitBtn.classList.contains('loading')) return;
+
+    const first = showErrors();
+    if (!formState().allOk) {
+      const target = first || form.querySelector('[data-gate]');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const focusable = target.querySelector('input, select, textarea');
+      if (focusable) setTimeout(() => focusable.focus({ preventScroll: true }), 350);
+      return;
+    }
+
+    if (WEBHOOK_URL.includes('PASTE_YOUR_WEBHOOK')) {
+      console.warn('⚠️ WEBHOOK_URL is not set. Payload that would be sent:', await buildPayload());
+      progressText.textContent = 'כתובת ה-Webhook עדיין לא הוגדרה (ראו WEBHOOK_URL בקוד)';
+      progressText.classList.add('err');
+      return;
+    }
+
+    submitBtn.classList.add('loading');
+    progressText.textContent = 'שולח…';
+    try {
+      const payload = await buildPayload();
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      form.hidden = true;
+      document.getElementById('hero').hidden = true;
+      document.getElementById('successCard').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Submit failed:', err);
+      progressText.textContent = 'אירעה שגיאה בשליחה. נא לנסות שוב, או לפנות אלינו בחלון העזרה.';
+      progressText.classList.add('err');
+    } finally {
+      submitBtn.classList.remove('loading');
+    }
+  });
+
+  /* ---------- Init ---------- */
+  bindCounters(document);
+  refresh();
+})();
+</script>
+</body>
+</html>
