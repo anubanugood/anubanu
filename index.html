@@ -842,9 +842,9 @@
             <span class="hint">האם אתם יכולים להצטרף לתוכנית בתקופה הקרובה?</span>
             <select id="availability" name="availability">
               <option value="" selected hidden></option>
-              <option>כן</option>
-              <option>לא</option>
-              <option>אחר</option>
+              <option value="כן">כן</option>
+              <option value="לא">לא</option>
+              <option value="אחר">אחר</option>
             </select>
           </div>
           <div class="field other-field" data-required data-other-for="availability" hidden>
@@ -895,9 +895,9 @@
             <span class="hint">היכן אתם מעוניינים להתנדב ולפעול למען הקהילה?</span>
             <select id="communityArea" name="communityArea">
               <option value="" selected hidden></option>
-              <option>עירונית בצפון</option>
-              <option>עירונית בדרום</option>
-              <option>לא משנה לנו - איפה שצריך אותנו שם נהיה</option>
+              <option value="עירונית בצפון">עירונית בצפון</option>
+              <option value="עירונית בדרום">עירונית בדרום</option>
+              <option value="לא משנה לנו - איפה שצריך אותנו שם נהיה">לא משנה לנו - איפה שצריך אותנו שם נהיה</option>
             </select>
           </div>
         </section>
@@ -983,8 +983,8 @@
         <label class="lbl" for="{p}_gender">מין<span class="req">*</span></label>
         <select id="{p}_gender" name="{p}_gender">
           <option value="" selected hidden></option>
-          <option>גבר</option>
-          <option>אישה</option>
+          <option value="גבר">גבר</option>
+          <option value="אישה">אישה</option>
         </select>
         <div class="error-msg">נא לבחור</div>
       </div>
@@ -1210,7 +1210,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
         m.querySelectorAll('input:checked').forEach(c => {
           const chip = document.createElement('span');
           chip.className = 'chip';
-          chip.textContent = c.value;
+          chip.textContent = c.parentElement.textContent.trim();   // visible (maybe translated) text; the value sent stays Hebrew
           value.appendChild(chip);
         });
       };
