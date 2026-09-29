@@ -952,6 +952,12 @@
       <div class="error-msg">נא למלא שם פרטי</div>
     </div>
 
+    <div class="field" data-validate="id">
+      <label class="lbl" for="{p}_idNumber">מספר תעודת זהות</label>
+      <input type="text" id="{p}_idNumber" name="{p}_idNumber" inputmode="numeric" maxlength="9" class="ltr">
+      <div class="error-msg">נא להזין מספר תעודת זהות תקין (9 ספרות)</div>
+    </div>
+
     <div class="grid-2">
       <div class="field" data-required>
         <label class="lbl" for="{p}_gender">מין<span class="req">*</span></label>
@@ -1103,7 +1109,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
      participants: [ {...} ]  – פרטים אישיים: 1 item when coming alone,
                                2 items (one per partner) when coming as a couple
        each participant = {
-         firstName, gender (גבר/אישה), birthDate,
+         firstName, idNumber, gender (גבר/אישה), birthDate,
          extraEmail, extraPhone, extraPhoneInternational,
          contactPhone, contactPhoneInternational,
          profession, recentWork, hobbies,
@@ -1302,6 +1308,18 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
   const validIsraeliPhone = v => /^[2-9]\d{7,8}$/.test(localDigits(v));
   const toInternational = v => v.trim() ? '+972' + localDigits(v) : '';
 
+  // Israeli ID: up to 9 digits, checked with the ID check digit
+  function israeliId(id) {
+    if (!/^\d{5,9}$/.test(id)) return false;
+    id = id.padStart(9, '0');
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      const n = Number(id[i]) * ((i % 2) + 1);
+      sum += n > 9 ? n - 9 : n;
+    }
+    return sum % 10 === 0;
+  }
+
   function checkField(field) {
     const radios = field.querySelectorAll('input[type=radio]');
     const checkbox = field.querySelector('input[type=checkbox]');
@@ -1323,6 +1341,8 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
       case 'phone':
       case 'phone-optional':
         return validIsraeliPhone(v);
+      case 'id':
+        return israeliId(v);
     }
     return true;
   }
@@ -1406,6 +1426,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     const fileInput = form.elements[`${p}_cv`];
     return {
       firstName: g('firstName'),
+      idNumber: g('idNumber'),
       gender: g('gender'),
       birthDate: g('birthDate'),                    // YYYY-MM-DD
       extraEmail: g('extraEmail'),
