@@ -498,6 +498,26 @@
   .multi-opt:has(input:checked) { background: var(--brand-soft); color: var(--brand-dark); }
   .multi-opt input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--brand); flex-shrink: 0; }
 
+  /* Date: typed dd/mm/yyyy + calendar button */
+  .date-wrap { position: relative; display: flex; direction: ltr; }
+  .date-wrap input[type=text] { border-radius: 10px 0 0 10px; text-align: left; }
+  .date-btn {
+    display: grid; place-items: center;
+    width: 50px; flex-shrink: 0;
+    background: var(--accent-soft); color: var(--accent);
+    border: 1.5px solid var(--line); border-left: 0;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .date-btn:hover { background: var(--brand-soft); color: var(--brand); }
+  .date-btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(42, 138, 179, .2); }
+  .date-native {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0; pointer-events: none; border: 0; padding: 0;
+  }
+  .field.invalid .date-btn { border-color: var(--danger); }
+
   /* Checkbox confirm */
   .check {
     display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
@@ -970,7 +990,13 @@
       </div>
       <div class="field" data-required data-validate="date">
         <label class="lbl" for="{p}_birthDate">תאריך לידה<span class="req">*</span></label>
-        <input type="text" id="{p}_birthDate" name="{p}_birthDate" class="ltr" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" data-date-mask>
+        <div class="date-wrap">
+          <input type="text" id="{p}_birthDate" name="{p}_birthDate" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" data-date-mask>
+          <button type="button" class="date-btn" data-date-btn aria-label="בחירת תאריך מלוח השנה">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </button>
+          <input type="date" class="date-native" tabindex="-1" aria-hidden="true" min="1900-01-01">
+        </div>
         <div class="error-msg">נא להזין תאריך לידה תקין (dd/mm/yyyy)</div>
       </div>
     </div>
@@ -1109,7 +1135,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
      participants: [ {...} ]  – פרטים אישיים: 1 item when coming alone,
                                2 items (one per partner) when coming as a couple
        each participant = {
-         firstName, idNumber, gender (גבר/אישה), birthDate (dd/mm/yyyy),
+         firstName, idNumber, gender (גבר/אישה), birthDate (YYYY-MM-DD – monday date format),
          extraEmail, extraPhone, extraPhoneInternational,
          contactPhone, contactPhoneInternational,
          profession, recentWork, hobbies,
@@ -1318,6 +1344,30 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
       && y >= 1900 && date <= new Date();
   }
 
+  // Calendar button: opens the browser's date picker; the picked date is written as dd/mm/yyyy
+  const pad = n => String(n).padStart(2, '0');
+  form.addEventListener('click', e => {
+    const btn = e.target.closest('[data-date-btn]');
+    if (!btn) return;
+    const wrap = btn.closest('.date-wrap');
+    const text = wrap.querySelector('[data-date-mask]');
+    const native = wrap.querySelector('.date-native');
+    const t = new Date();
+    native.max = t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
+    const m = text.value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    native.value = m && validDate(text.value) ? m[3] + '-' + m[2] + '-' + m[1] : '';
+    try { native.showPicker(); } catch (err) { native.focus(); native.click(); }
+  });
+  form.addEventListener('change', e => {
+    if (!e.target.matches('.date-native') || !e.target.value) return;
+    const [y, mo, d] = e.target.value.split('-');
+    const text = e.target.closest('.date-wrap').querySelector('[data-date-mask]');
+    text.value = d + '/' + mo + '/' + y;
+    text.dispatchEvent(new Event('input', { bubbles: true }));
+    text.dispatchEvent(new Event('change', { bubbles: true }));
+    text.focus();
+  }, true);
+
   // Adds the slashes while typing: 01011960 → 01/01/1960
   form.addEventListener('input', e => {
     if (!e.target.matches('[data-date-mask]')) return;
@@ -1447,7 +1497,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
       firstName: g('firstName'),
       idNumber: g('idNumber'),
       gender: g('gender'),
-      birthDate: g('birthDate'),                    // dd/mm/yyyy
+      birthDate: g('birthDate').split('/').reverse().join('-'),   // shown dd/mm/yyyy, sent YYYY-MM-DD for monday
       extraEmail: g('extraEmail'),
       extraPhone: g('extraPhone'),
       extraPhoneInternational: toInternational(g('extraPhone')),
