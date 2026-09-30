@@ -1106,6 +1106,8 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
 
    {
      formName, submittedAt,
+     utmSource             – "email" / "whatsapp" / "website" from the link's ?utm_source=,
+                             "other" for any other value or when it is missing
      contact: {
        fullName            – שם(ות) פרטי(ים) ושם משפחה
        email               – כתובת אימייל
@@ -1513,6 +1515,13 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     };
   }
 
+  // Where the person came from: ?utm_source= in the page address
+  const UTM_SOURCES = ['email', 'whatsapp', 'website'];
+  function utmSource() {
+    const v = (new URLSearchParams(location.search).get('utm_source') || '').trim().toLowerCase();
+    return UTM_SOURCES.includes(v) ? v : 'other';
+  }
+
   async function buildPayload() {
     const full = GATES.every(g => radioVal(g) === 'כן');   // rest of the form was shown and filled
     const arrival = full ? val('arrivalType') : '';
@@ -1520,6 +1529,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     return {
       formName: 'טופס הצטרפות לתוכנית ההתנדבות אנובנו',
       submittedAt: new Date().toISOString(),
+      utmSource: utmSource(),
       contact: {
         fullName: val('fullName'),
         email: val('email'),
