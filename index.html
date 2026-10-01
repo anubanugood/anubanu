@@ -281,6 +281,15 @@
     border-color: var(--danger);
   }
   .field.invalid .choice, .field.invalid .option-big, .field.invalid .check { border-color: #e7b3ae; }
+  .field.invalid:not(.gate) {
+    background: #fff4f3;
+    box-shadow: 0 0 0 2px #e9a29c;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-inline: -14px;
+  }
+  .gate.field.invalid { background: #fff4f3; box-shadow: 0 0 0 1px var(--danger); }
+  .field.invalid .lbl { color: var(--danger); }
 
   /* ---------- Choices (radio pills) ---------- */
   .choices { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -554,7 +563,13 @@
 
   /* Submit tried with missing required answers */
   .submit-bar.attention { border-top: 3px solid var(--danger); background: #fff6f5; }
-  .submit-bar.attention .progress-text { color: var(--danger); font-weight: 600; }
+  .submit-bar.attention .progress-text { font-weight: 600; }
+  .progress-text.missing { color: var(--danger); }
+  .goto-missing {
+    background: none; border: 0; padding: 0; margin-inline-start: 6px;
+    font: inherit; font-weight: 700; color: var(--danger);
+    text-decoration: underline; cursor: pointer;
+  }
   .submit-bar.attention .progress { background: #f6d5d2; }
   .submit-bar.attention .progress > div { background: var(--danger); }
   .submit-bar.shake .progress-wrap { animation: shake .45s ease; }
@@ -741,20 +756,20 @@
       <!-- ================= STEP 1: CONTACT ================= -->
       <section class="card">
         <h2 class="card-title"><span class="num">1</span>פרטי התקשרות</h2>
-        <p class="card-sub">נשתמש בפרטים האלה כדי לחזור אליכם.</p>
+        <p class="card-sub">נשתמש בפרטים האלה כדי ליצור איתכם קשר.</p>
 
         <div class="field" data-required>
           <label class="lbl" for="fullName">שם(ות) פרטי(ים) ושם משפחה<span class="req">*</span></label>
           <div class="name-wrap">
-            <input type="text" id="fullName" name="fullName" autocomplete="off" placeholder="לדוגמה: ישראל שרה & כהן" aria-describedby="nameTip">
+            <input type="text" id="fullName" name="fullName" autocomplete="off" placeholder="לדוגמה: ישראל וישראלה ישראלי" aria-describedby="nameTip">
             <div class="name-tip" id="nameTip" role="tooltip" hidden>
               <div class="tip-row">
                 <span class="tip-tag">זוג</span>
-                <div>ישראל ושרה, משפחת כהן: <b>ישראל שרה & כהן</b></div>
+                <div><b>ישראל וישראלה ישראלי</b></div>
               </div>
               <div class="tip-row">
                 <span class="tip-tag">יחיד/ה</span>
-                <div><b>ישראל כהן</b></div>
+                <div><b>ישראל ישראלי</b></div>
               </div>
               <button type="button" class="tip-close" id="nameTipClose">הבנתי</button>
             </div>
@@ -822,8 +837,10 @@
         <div class="notice soft" id="gateWarning" hidden>
           <svg class="i-svg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/></svg>
           <div>
-            <p><strong>תודה על הכנות!</strong></p>
-            <p>ההשתתפות בתוכנית מחייבת מעבר דירה, התנדבות של 20 שעות שבועיות לפחות והתחייבות לשנה מלאה. אפשר לשלוח את הטופס כבר עכשיו.</p>
+            <p><strong>תודה על רצונך להתנדב!</strong></p>
+            <p>להשתתפות בתוכנית נדרש מעבר דירה, התנדבות במשך לפחות 20 שעות בשבוע והתחייבות לשנה שלמה.</p>
+            <p>אם אינך יכול להתחייב לדרישות אלו, לא נוכל להמשיך איתך את התהליך.<br>
+            אם הקלדת את כל שדות החובה, ניתן ללחוץ על כפתור "שלח" ולשלוח את הטופס החלקי.</p>
             <p>יש שאלות? אנשי הקשר בחלון "עזרה ותמיכה" ישמחו לעזור.</p>
           </div>
         </div>
@@ -847,7 +864,7 @@
               <option value="אחר">אחר</option>
             </select>
           </div>
-          <div class="field other-field" data-required data-other-for="availability" hidden>
+          <div class="field other-field" data-other-for="availability" hidden>
             <input type="text" id="availabilityOther" name="availabilityOther" placeholder="נא לפרט…" aria-label="פירוט לאפשרות אחר">
             <div class="error-msg">נא לפרט</div>
           </div>
@@ -863,15 +880,15 @@
               <label class="choice"><input type="radio" name="maritalStatus" value="אחר"><span class="dot"></span>אחר</label>
             </div>
           </div>
-          <div class="field other-field" data-required data-other-for="maritalStatus" hidden>
+          <div class="field other-field" data-other-for="maritalStatus" hidden>
             <input type="text" id="maritalStatusOther" name="maritalStatusOther" placeholder="נא לפרט…" aria-label="פירוט לאפשרות אחר">
             <div class="error-msg">נא לפרט</div>
           </div>
 
           <div class="field">
             <label class="lbl" for="address">כתובת מגורים</label>
-            <span class="hint">כתבו כאן את הכתובת שבה אתם גרים כיום</span>
-            <input type="text" id="address" name="address" autocomplete="street-address" placeholder="רחוב, מספר, עיר">
+            <span class="hint">ישוב או עיר</span>
+            <input type="text" id="address" name="address" autocomplete="address-level2">
           </div>
 
           <div class="field" data-required>
@@ -885,7 +902,7 @@
             </div>
             <div class="error-msg">נא לבחור אפשרות</div>
           </div>
-          <div class="field other-field" data-required data-other-for="religion" hidden>
+          <div class="field other-field" data-other-for="religion" hidden>
             <input type="text" id="religionOther" name="religionOther" placeholder="נא לפרט…" aria-label="פירוט לאפשרות אחר">
             <div class="error-msg">נא לפרט</div>
           </div>
@@ -1066,7 +1083,7 @@
         </div>
       </div>
     </div>
-    <div class="field other-field" data-required data-other-for="{p}_interests" hidden>
+    <div class="field other-field" data-other-for="{p}_interests" hidden>
       <input type="text" id="{p}_interestsOther" name="{p}_interestsOther" placeholder="נא לפרט…" aria-label="פירוט לתחום עניין אחר">
       <div class="error-msg">נא לפרט</div>
     </div>
@@ -1077,7 +1094,8 @@
     </div>
 
     <div class="field">
-      <span class="lbl">אנא צרף/י קורות חיים (אם אין לך, אפשר בהמשך)</span>
+      <span class="lbl">אנא צרף/י קורות חיים</span>
+      <span class="hint">אם אין לך, אפשר לשלוח בהמשך.<br>לצערנו, לא נוכל להזמין אותך לראיון, עד שנקבל את קורות החיים שלך.</span>
       <label class="dropzone">
         <input type="file" name="{p}_cv" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
         <span class="up">⬆️</span>
@@ -1303,11 +1321,11 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
 
     if (a === 'single') {
       setPerson(person1, 5, 'פרטים אישיים', 'נשמח להכיר אותך – הכישורים, הניסיון ותחומי העניין שלך יעזרו לנו להתאים לך את תפקיד ההתנדבות.');
-      infoText.innerHTML = '<p><strong>מגיע/ה לבד</strong> – מילאת בהצלחה את החלק הראשון של השאלון, שבו שיתפת אותנו בפרטים כלליים.</p><p>בחלק הבא נבקש ממך למלא פרטים אישיים נוספים, שיסייעו לנו להכיר את הכישורים, הניסיון ותחומי העניין שלך, כדי שנוכל להתאים לך את תפקיד ההתנדבות בשנת השירות.</p>';
+      infoText.innerHTML = '<p>מילאת בהצלחה את החלק הראשון של השאלון, שבו שיתפת אותנו בפרטים כלליים.</p><p>בחלק הבא נבקש ממך למלא פרטים אישיים נוספים, שיסייעו לנו להכיר את הכישורים, הניסיון ותחומי העניין שלך, כדי שנוכל להתאים לך את תפקיד ההתנדבות בשנת השירות.</p>';
     } else if (a === 'couple') {
       setPerson(person1, 5, 'פרטים אישיים – בן/בת זוג ראשון/ה', 'החלק הזה מיועד לאחד מבני הזוג.');
       setPerson(person2, 6, 'פרטים אישיים – בן/בת זוג שני/ה', 'החלק הזה מיועד לבן/בת הזוג השני/ה.');
-      infoText.innerHTML = '<p><strong>מגיעים כזוג</strong> – מילאתם בהצלחה את החלק הראשון של השאלון, שבו שיתפתם אותנו בפרטים כלליים.</p><p>בהמשך יופיעו שני חלקים של פרטים אישיים – אחד לכל אחד מבני הזוג.</p>';
+      infoText.innerHTML = '<p>השלמתם בהצלחה את החלק הראשון של השאלון, שבו שיתפתם אותנו בפרטים כלליים.</p><p>בחלק הבא נבקש מכם למלא פרטים אישיים נוספים, שיעזרו לנו להכיר את הכישורים, הניסיון ותחומי העניין שלכם כדי שנוכל להתאים כל אחד מכם לתפקיד מתאים.</p><p>להלן שני סעיפים של מידע אישי – אחד לכל בן/בת זוג.</p>';
     }
   }
 
@@ -1441,22 +1459,35 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     const pct = total ? Math.round(done / total * 100) : 0;
     document.getElementById('progressBar').style.width = (allOk ? 100 : Math.min(pct, 99)) + '%';
     progressText.classList.remove('err');
+    progressText.classList.toggle('missing', !allOk);
     if (allOk) {
       progressText.innerHTML = '<b>הכול מוכן!</b> אפשר לשלוח את הטופס';
     } else {
       const left = total - done;
-      if (attention) {
-        progressText.textContent = left > 0
-          ? `כדי לשלוח יש למלא את שדות החובה המסומנים באדום (נותרו ${left})`
-          : 'כדי לשלוח יש לתקן את השדות המסומנים באדום';
-      } else {
-        progressText.innerHTML = left > 0
-          ? `נותרו <b>${left}</b> שדות חובה למילוי`
-          : 'נא לבדוק שדות שסומנו כשגויים';
-      }
+      progressText.innerHTML = (left > 0
+        ? `כדי לשלוח את השאלון עליך להשלים מילוי של ${left} שדות חובה.`
+        : 'כדי לשלוח את השאלון יש לתקן את השדות המסומנים באדום.')
+        + ' <button type="button" class="goto-missing" data-goto-missing>לצפייה בשדות החובה</button>';
     }
     submitBtn.setAttribute('aria-disabled', String(!allOk));
   }
+
+  // Marks every missing / wrong field and takes the person to the first one
+  function goToFirstMissing() {
+    const first = showErrors();
+    attention = true;
+    refresh();
+    submitBar.classList.remove('shake');
+    void submitBar.offsetWidth;            // restart the shake animation
+    submitBar.classList.add('shake');
+    const target = first || form.querySelector('[data-gate]');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const focusable = target.querySelector('input, select, textarea');
+    if (focusable) setTimeout(() => focusable.focus({ preventScroll: true }), 350);
+  }
+  submitBar.addEventListener('click', e => {
+    if (e.target.closest('[data-goto-missing]')) goToFirstMissing();
+  });
 
   function showErrors() {
     let first = null;
@@ -1588,17 +1619,8 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     e.preventDefault();
     if (submitBtn.classList.contains('loading')) return;
 
-    const first = showErrors();
     if (!formState().allOk) {
-      attention = true;
-      refresh();
-      submitBar.classList.remove('shake');
-      void submitBar.offsetWidth;            // restart the shake animation
-      submitBar.classList.add('shake');
-      const target = first || form.querySelector('[data-gate]');
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const focusable = target.querySelector('input, select, textarea');
-      if (focusable) setTimeout(() => focusable.focus({ preventScroll: true }), 350);
+      goToFirstMissing();
       return;
     }
 
