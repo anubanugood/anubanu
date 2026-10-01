@@ -1424,7 +1424,9 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
     switch (rule) {
       case 'email':
       case 'email-optional':
-        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+        // name part: letters/digits/._%+'- with no leading, trailing or double dots;
+        // domain: labels separated by single dots, ending in a 2+ letter ending (.com, .co.il …)
+        return /^[A-Za-z0-9_%+'-]+(\.[A-Za-z0-9_%+'-]+)*@([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(v);
       case 'phone':
       case 'phone-optional':
         return validIsraeliPhone(v);
