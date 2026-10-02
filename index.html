@@ -211,6 +211,7 @@
   .field { margin-bottom: 22px; }
   .field:last-child { margin-bottom: 0; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
 
   .lbl {
     display: block;
@@ -585,48 +586,6 @@
   .other-field { margin-top: -10px; }
   .other-field input { border-style: dashed; }
 
-  /* Name instructions popup */
-  .name-wrap { position: relative; }
-  .name-tip {
-    position: absolute;
-    inset-inline: 0;
-    top: calc(100% + 10px);
-    z-index: 16;
-    background: #fff;
-    border: 1.5px solid var(--brand);
-    border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(43, 39, 35, .16);
-    padding: 14px 16px 12px;
-    font-size: 14.5px;
-    animation: fadeIn .2s ease;
-  }
-  .name-tip::before {
-    content: "";
-    position: absolute;
-    top: -8px;
-    inset-inline-start: 24px;
-    width: 14px; height: 14px;
-    background: #fff;
-    border-top: 1.5px solid var(--brand);
-    border-left: 1.5px solid var(--brand);
-    transform: rotate(45deg);
-  }
-  .name-tip strong { display: block; margin-bottom: 8px; color: var(--brand-dark); }
-  .tip-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; }
-  .tip-row + .tip-row { border-top: 1px dotted var(--line); }
-  .tip-tag {
-    flex-shrink: 0;
-    background: var(--brand-soft); color: var(--brand-dark);
-    border-radius: 999px; padding: 1px 10px; font-weight: 700; font-size: 13px;
-  }
-  .tip-ex { color: var(--muted); font-size: 13.5px; }
-  .tip-ex b { color: var(--ink); font-weight: 600; }
-  .name-tip .tip-close {
-    display: block; margin: 8px 0 0 auto;
-    background: var(--brand); color: #fff; border: 0; border-radius: 8px;
-    font: inherit; font-size: 14px; font-weight: 600; padding: 5px 16px; cursor: pointer;
-  }
-
   .btn {
     font: inherit;
     font-weight: 700;
@@ -695,7 +654,7 @@
   }
   @media (max-width: 600px) {
     .hero-top, .hero-body, .card { padding-left: 18px; padding-right: 18px; }
-    .grid-2, .options-big { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .options-big { grid-template-columns: 1fr; }
     .gate { flex-direction: column; align-items: stretch; }
     .gate .choice { flex: 1; justify-content: center; }
     .btn { padding: 12px 24px; }
@@ -758,23 +717,24 @@
         <h2 class="card-title"><span class="num">1</span>פרטי התקשרות</h2>
         <p class="card-sub">נשתמש בפרטים האלה כדי ליצור איתכם קשר.</p>
 
-        <div class="field" data-required>
-          <label class="lbl" for="fullName">שם(ות) פרטי(ים) ושם משפחה<span class="req">*</span></label>
-          <div class="name-wrap">
-            <input type="text" id="fullName" name="fullName" autocomplete="off" placeholder="לדוגמה: ישראל וישראלה ישראלי" aria-describedby="nameTip">
-            <div class="name-tip" id="nameTip" role="tooltip" hidden>
-              <div class="tip-row">
-                <span class="tip-tag">זוג</span>
-                <div><b>ישראל וישראלה ישראלי</b></div>
-              </div>
-              <div class="tip-row">
-                <span class="tip-tag">יחיד/ה</span>
-                <div><b>ישראל ישראלי</b></div>
-              </div>
-              <button type="button" class="tip-close" id="nameTipClose">הבנתי</button>
-            </div>
+        <div class="grid-3">
+          <div class="field" data-required>
+            <label class="lbl" for="familyName">שם משפחה<span class="req">*</span></label>
+            <span class="hint">לדוגמה: ישראלי</span>
+            <input type="text" id="familyName" name="familyName" autocomplete="family-name">
+            <div class="error-msg">נא למלא שם משפחה</div>
           </div>
-          <div class="error-msg">נא למלא שם מלא</div>
+          <div class="field" data-required>
+            <label class="lbl" for="spouse1FirstName">שם פרטי בן/בת זוג 1<span class="req">*</span></label>
+            <span class="hint">לדוגמה: ישראל</span>
+            <input type="text" id="spouse1FirstName" name="spouse1FirstName" autocomplete="given-name">
+            <div class="error-msg">נא למלא שם פרטי</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="spouse2FirstName">שם פרטי בן/בת זוג 2 (אם רלוונטי)</label>
+            <span class="hint">לדוגמה: ישראלה</span>
+            <input type="text" id="spouse2FirstName" name="spouse2FirstName" autocomplete="off">
+          </div>
         </div>
 
         <div class="field" data-required data-validate="email">
@@ -1128,6 +1088,7 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
                              "other" for any other value or when it is missing
      contact: {
        fullName            – שם(ות) פרטי(ים) ושם משפחה
+                             (the form's three name boxes joined: שם פרטי 1 ו-שם פרטי 2 שם משפחה)
        email               – כתובת אימייל
        phone               – טלפון (כפי שהוקלד, למשל 050-1234567)
        phoneInternational  – טלפון בפורמט בינלאומי (+972501234567)
@@ -1187,23 +1148,6 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
   document.getElementById('helpFab').addEventListener('click', () => toggleHelp(true));
   document.getElementById('helpClose').addEventListener('click', () => toggleHelp(false));
   backdrop.addEventListener('click', () => toggleHelp(false));
-
-  /* ---------- Name instructions popup ---------- */
-  const nameInput = document.getElementById('fullName');
-  const nameTip = document.getElementById('nameTip');
-  let nameTipDismissed = false;
-  const showNameTip = () => { if (!nameTipDismissed) nameTip.hidden = false; };
-  nameInput.addEventListener('input', showNameTip);
-  nameInput.addEventListener('focus', () => { nameTipDismissed = false; if (nameInput.value) showNameTip(); });
-  nameInput.addEventListener('blur', () => setTimeout(() => {
-    if (!nameTip.contains(document.activeElement)) nameTip.hidden = true;
-  }, 150));
-  document.getElementById('nameTipClose').addEventListener('click', () => {
-    nameTipDismissed = true;
-    nameTip.hidden = true;
-    nameInput.focus();
-  });
-  nameInput.addEventListener('keydown', e => { if (e.key === 'Escape') { nameTipDismissed = true; nameTip.hidden = true; } });
 
   /* ---------- Helpers ---------- */
   function bindCounters(root) {
@@ -1564,7 +1508,10 @@ const WEBHOOK_URL = 'https://hook.eu2.make.com/ej3nk4sb974tuwj2jsvdn2dphrxrwf17'
       submittedAt: new Date().toISOString(),
       utmSource: utmSource(),
       contact: {
-        fullName: val('fullName'),
+        // The three name boxes are joined back into the single field Make already receives:
+        // "ישראל וישראלה ישראלי" for a couple, "ישראל ישראלי" for one person
+        fullName: [[val('spouse1FirstName'), val('spouse2FirstName')].filter(Boolean).join(' ו'), val('familyName')]
+          .filter(Boolean).join(' '),
         email: val('email'),
         phone: val('phone'),
         phoneInternational: toInternational(val('phone'))
